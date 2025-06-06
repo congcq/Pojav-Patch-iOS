@@ -206,7 +206,7 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
     if (glLibName) {
         if (!strcmp(glLibName, "auto")) {
             // workaround only applies to 1.20.2+
-            glLibName = RENDERER_NAME_MTL_ANGLE;
+            glLibName = RENDERER_NAME_MOBILEGLUES;
         }
         margv[++margc] = [NSString stringWithFormat:@"-Dorg.lwjgl.opengl.libname=%s", glLibName].UTF8String;
     }
