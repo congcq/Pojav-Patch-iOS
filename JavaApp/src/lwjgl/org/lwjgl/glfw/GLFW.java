@@ -514,7 +514,7 @@ public class GLFW
 
     static {
         try {
-            System.load(System.getenv("BUNDLE_PATH") + "/PojavLauncherPatch");
+            System.load(System.getenv("BUNDLE_PATH") + "/PojavPatch");
         } catch (UnsatisfiedLinkError e) {
             e.printStackTrace();
         }
@@ -584,7 +584,7 @@ public class GLFW
         throw new UnsupportedOperationException();
     }
 
-    private static final SharedLibrary GLFW = new MacOSXLibraryDL("PojavLauncherPatch", DynamicLinkLoader.RTLD_DEFAULT);
+    private static final SharedLibrary GLFW = new MacOSXLibraryDL("PojavPatch", DynamicLinkLoader.RTLD_DEFAULT);
 
 
     /** Contains the function pointers loaded from the glfw {@link SharedLibrary}. */
