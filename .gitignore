@@ -3,7 +3,7 @@
 /JavaApp/.gradle
 /JavaApp/build
 /JavaApp/local_out
-/Natives/PojavLauncherPatch
+/Natives/PojavPatch
 /Natives/build
 .DS_Store
 xcshareddata/*
