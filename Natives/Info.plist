@@ -9,9 +9,9 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>PojavLauncherPatch</string>
+	<string>Pojav Patch</string>
 	<key>CFBundleExecutable</key>
-	<string>PojavLauncherPatch</string>
+	<string>PojavPatch</string>
 	<key>CFBundleIcons</key>
 	<dict>
 		<key>CFBundleAlternateIcons</key>
@@ -74,11 +74,11 @@
 		</dict>
 	</dict>
 	<key>CFBundleIdentifier</key>
-	<string>net.kdt.pojavlauncher.patch</string>
+	<string>net.kdt.pojavpatch</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>PojavLauncher</string>
+	<string>PojavPatch</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -128,9 +128,9 @@
 		<string>_altserver._tcp</string>
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>PojavLauncher Patch uses the local network to find and communicate with AltServer and LAN servers.</string>
+	<string>Pojav Patch uses the local network to find and communicate with AltServer and LAN servers.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>PojavLauncher Patch uses the microphone to enable support for voice chat mods.</string>
+	<string>Pojav Patch uses the microphone to enable support for voice chat mods.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

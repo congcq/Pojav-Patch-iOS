@@ -43,19 +43,19 @@
 /* End PBXGroup section */
 
 /* Begin PBXLegacyTarget section */
-		054957C52986E8DC00EFD4CE /* PojavLauncherPatch */ = {
+		054957C52986E8DC00EFD4CE /* PojavPatch */ = {
 			isa = PBXLegacyTarget;
 			buildArgumentsString = "-j$(sysctl -n hw.ncpu) dsym package";
-			buildConfigurationList = 054957C82986E8DC00EFD4CE /* Build configuration list for PBXLegacyTarget "PojavLauncherPatch" */;
+			buildConfigurationList = 054957C82986E8DC00EFD4CE /* Build configuration list for PBXLegacyTarget "PojavPatch" */;
 			buildPhases = (
 			);
 			buildToolPath = /opt/homebrew/bin/gmake;
 			buildWorkingDirectory = "";
 			dependencies = (
 			);
-			name = PojavLauncherPatch;
+			name = PojavPatch;
 			passBuildSettingsInEnvironment = 1;
-			productName = PojavLauncherPatch;
+			productName = PojavPatch;
 		};
 /* End PBXLegacyTarget section */
 
@@ -71,7 +71,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 054957C42986E8DC00EFD4CE /* Build configuration list for PBXProject "PojavLauncher" */;
+			buildConfigurationList = 054957C42986E8DC00EFD4CE /* Build configuration list for PBXProject "PojavPatch" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -83,7 +83,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				054957C52986E8DC00EFD4CE /* PojavLauncherPatch */,
+				054957C52986E8DC00EFD4CE /* PojavPatch */,
 			);
 		};
 /* End PBXProject section */
@@ -134,7 +134,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		054957C42986E8DC00EFD4CE /* Build configuration list for PBXProject "PojavLauncher" */ = {
+		054957C42986E8DC00EFD4CE /* Build configuration list for PBXProject "PojavPatch" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				054957C62986E8DC00EFD4CE /* Debug */,
@@ -143,7 +143,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		054957C82986E8DC00EFD4CE /* Build configuration list for PBXLegacyTarget "PojavLauncher" */ = {
+		054957C82986E8DC00EFD4CE /* Build configuration list for PBXLegacyTarget "PojavPatch" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				054957C92986E8DC00EFD4CE /* Debug */,
