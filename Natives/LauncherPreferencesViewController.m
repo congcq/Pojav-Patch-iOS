@@ -433,7 +433,7 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
     if (section == 0) { // Add to general section
-        return [NSString stringWithFormat:@"Pojav Patch %@-%s (%s/%s)\n%@ on %@ (%s)\nPID: %d\By CongChu (congcq).",
+        return [NSString stringWithFormat:@"Pojav Patch %@-%s (%s/%s)\n%@ on %@ (%s)\nPID: %d\nBy CongChu (congcq).",
             NSBundle.mainBundle.infoDictionary[@"CFBundleShortVersionString"],
             CONFIG_TYPE, CONFIG_BRANCH, CONFIG_COMMIT,
             UIDevice.currentDevice.completeOSVersion, [HostManager GetModelName], getenv("POJAV_DETECTEDINST"), getpid()];
