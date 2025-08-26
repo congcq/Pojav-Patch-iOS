@@ -1,5 +1,5 @@
-# PojavLauncher iOS Patch
-[![Development build](https://github.com/congcq/PojavLauncher-iOS-Patch/actions/workflows/development.yml/badge.svg?branch=main)](https://github.com/congcq/PojavLauncher-iOS-Patch/actions/workflows/development.yml)
+# Pojav Patch iOS
+[![Development build](https://github.com/congcq/Pojav-Patch-iOS/actions/workflows/development.yml/badge.svg?branch=main)](https://github.com/congcq/PojavLauncher-iOS-Patch/actions/workflows/development.yml)
 [![Discord](https://img.shields.io/discord/724163890803638273.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/nUpEeqRBqR)
 
 
@@ -13,7 +13,7 @@ PojavLauncher is a Minecraft: Java Edition launcher for Android, iOS, and iPadOS
 * Microsoft account and demo mode support for logging into Minecraft.
 * ...and much more!
 
-This repository contains the code for our iOS and iPadOS fork of [PojavLauncher iOS](https://github.com/PojavLauncherTeam/PojavLauncher_iOS) now is [Amethyst](https://github.com/AngelAuraMC/Amethyst-iOS). It named PojavLauncher iOS Patch - patch for everyone who don't have Premium Account can be played PojavLauncher on iOS with Local Account.
+This repository contains the code for our iOS and iPadOS fork of [PojavLauncher iOS](https://github.com/PojavLauncherTeam/PojavLauncher_iOS) now is [Amethyst](https://github.com/AngelAuraMC/Amethyst-iOS). It named Pojav Patch - patch for everyone who don't have Premium Account can be played PojavLauncher on iOS with Local Account.
 
 But it's not because it can play with an internal account that you don't need to buy a Premium Account; I still recommend that you spend money to purchase it.
 
@@ -42,7 +42,7 @@ Recommended devices provide a smoother and more enjoyable gameplay experience co
 - iOS 26 is not supported due to a JIT issue in this version of iOS.
 
 ### Setting up to sideload
-PojavLauncher can be sideloaded in many ways. Our recommended solution is to install [TrollStore](https://github.com/opa334/TrollStore) if your iOS version supports it. Installing with TrollStore allows you to permenantly sign the application, automatically enable JIT, and increase memory limits.
+Pojav Patch can be sideloaded in many ways. Our recommended solution is to install [TrollStore](https://github.com/opa334/TrollStore) if your iOS version supports it. Installing with TrollStore allows you to permenantly sign the application, automatically enable JIT, and increase memory limits.
 
 For iOS/iPadOS 17.0: Unfortunately,the above process will not work. It is required that you must use [TrollRestore](https://github.com/JJTech0130/TrollRestore). Any versions above iOS/iPadOS 17.0 will NOT be supported (as of December 23, 2024).
 
@@ -52,18 +52,18 @@ If you cannot, [AltStore](https://altstore.io) and [SideStore](https://sidestore
 - Only install sideloading software and PojavLauncher from trusted sources. We are not responsible for any harm caused by using unofficial software.
 - Jailbreaks also benefit from permenant signing, autoJIT, and increased memory limits, however we do not recommend them for regular use.
 
-### Installing PojavLauncher
+### Installing Pojav Patch
 #### Release build (both TrollStore and AltStore/SideStore)
-1. Download an IPA of PojavLauncher in [Releases](https://github.com/congcq/PojavLauncher-iOS-Patch/releases).
+1. Download an IPA of Pojav Patch in [Releases](https://github.com/congcq/Pojav-Patch-iOS/releases).
 2. Open the package in TrollStore using the share menu.
 
 #### Nightly builds
 *These builds can contain game-breaking bugs. Use with caution.*
-1. Download an IPA build of PojavLauncher in the [Actions tab](https://github.com/congcq/PojavLauncher-iOS-Patch/actions).
+1. Download an IPA build of Pojav Patch in the [Actions tab](https://github.com/congcq/Pojav-Patch-iOS/actions).
 2. Open the downloaded IPA in your sideloading app to install.
 
 ### Enabling JIT
-PojavLauncher makes use of **just-in-time compilation**, or JIT, to provide usable speeds for the end user. JIT is not supported on iOS without the application being debugged, so workarounds are required to enable it. You can use this chart to determine the best solution for you and your setup.
+Pojav Patch makes use of **just-in-time compilation**, or JIT, to provide usable speeds for the end user. JIT is not supported on iOS without the application being debugged, so workarounds are required to enable it. You can use this chart to determine the best solution for you and your setup.
 | Application         | AltStore | SideStore | TrollStore | Jitterbug          | Jailbroken |
 |---------------------|----------|-----------|------------|--------------------|------------|
 | Requires ext-device | Yes      | No        | No         | If VPN unavailable | No         |
@@ -73,9 +73,9 @@ PojavLauncher makes use of **just-in-time compilation**, or JIT, to provide usab
 (*) AltServer running on the local network is required.
 
 ## Contributors
-PojavLauncher is amazing, and surprisingly stable, and it wouldn't be this way without the commmunity that helped and contribute to the project! Some notable names:
+Pojav Patch is amazing, and surprisingly stable, and it wouldn't be this way without the commmunity that helped and contribute to the project! Some notable names:
 
-**In this repository (PojavLauncher iOS Patch)**:
+**In this repository (Pojav-Patch-iOS)**:
 
 @congcq (CongChu)
 
