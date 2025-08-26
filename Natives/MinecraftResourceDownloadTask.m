@@ -314,9 +314,8 @@
 
 // Check if the account has permission to download
 - (BOOL)checkAccessWithDialog:(BOOL)show {
-    // for now
-    BOOL accessible = true; //enable all permission for local account.
-    return accessible;
+    // Enable all permission for local account.
+    return true;
 }
 
 // Check SHA of the file

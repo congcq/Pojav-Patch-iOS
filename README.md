@@ -13,7 +13,7 @@ PojavLauncher is a Minecraft: Java Edition launcher for Android, iOS, and iPadOS
 * Microsoft account and demo mode support for logging into Minecraft.
 * ...and much more!
 
-This repository contains the code for our iOS and iPadOS fork of [PojavLauncher iOS](https://github.com/PojavLauncherTeam/PojavLauncher_iOS) now is [Amethyst](https://github.com/AngelAuraMC/Amethyst-iOS). It named Pojav Patch - patch for everyone who don't have Premium Account can be played PojavLauncher on iOS with Local Account.
+This repository contains the code for our iOS and iPadOS fork of [PojavLauncher iOS](https://github.com/PojavLauncherTeam/PojavLauncher_iOS) now is [Amethyst](https://github.com/AngelAuraMC/Amethyst-iOS). It named Pojav Patch - patch for everyone who don't have Premium Account can be played PojavLauncher on iOS without Premium Account.
 
 But it's not because it can play with an internal account that you don't need to buy a Premium Account; I still recommend that you spend money to purchase it.
 
