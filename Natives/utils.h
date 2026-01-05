@@ -58,6 +58,8 @@ BOOL debugLogEnabled, isJailbroken;
 #define CS_DEBUGGED 0x10000000
 int csops(pid_t pid, unsigned int ops, void *useraddr, size_t usersize);
 BOOL isJITEnabled(BOOL checkCSOps);
+// legacy method used to check if we're using universal script
+void* JIT26CreateRegionLegacy(size_t len);
 // Used for large memory regions
 void* JIT26PrepareRegion(void *addr, size_t len);
 // Same as JIT26PrepareRegion, but used for smaller memory regions

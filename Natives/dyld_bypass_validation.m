@@ -180,7 +180,7 @@ int hooked___fcntl(int fildes, int cmd, void *param) {
 
     // Signature sanity check by dyld
     else if (cmd == F_CHECK_LV) {
-        orig_fcntl(fildes, cmd, param);
+        //orig_fcntl(fildes, cmd, param);
         // Just say everything is fine
         return 0;
     }

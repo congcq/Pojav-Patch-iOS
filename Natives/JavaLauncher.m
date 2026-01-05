@@ -15,6 +15,7 @@
 #import "ios_uikit_bridge.h"
 #import "JavaLauncher.h"
 #import "LauncherPreferences.h"
+#import "PLLogOutputView.h"
 #import "PLProfiles.h"
 
 #define fm NSFileManager.defaultManager
@@ -100,6 +101,18 @@ void init_loadCustomJvmFlags(int* argc, const char** argv) {
 int launchJVM(NSString *username, id launchTarget, int width, int height, int minVersion) {
     NSLog(@"[JavaLauncher] Beginning JVM launch");
 
+    if (DeviceRequiresTXMWorkaround()) {
+        void *result = JIT26CreateRegionLegacy(getpagesize());
+        if ((uint32_t)result != (void *)0x690000E0) {
+            munmap(result, getpagesize());
+            // we can't continue since legacy script only allows calling breakpoint once
+            [NSFileManager.defaultManager copyItemAtPath:[NSBundle.mainBundle pathForResource:@"UniversalJIT26" ofType:@"js"] toPath:[NSString stringWithFormat:@"%s/UnjversalJIT26.js", getenv("POJAV_HOME")] error:nil];
+            showDiaLog(localize(@"Error", nil), @"Support for legacy script has been removed. Please switch to Universal JIT script. It can be found under Pojav's Documents directory.");
+            [PLLogOutputView handleExitCode:1];
+            return 1;
+        }
+    }
+
     BOOL jit26UniversalScript = getPrefBool(@"debug.debug_universal_script_jit");
     BOOL jit26AlwaysAttached = getPrefBool(@"debug.debug_always_attached_jit");
     if (jit26UniversalScript) {
@@ -112,7 +125,7 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
     if ([NSFileManager.defaultManager fileExistsAtPath:[NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:@"LSAppInfo.plist"]]) {
         NSDebugLog(@"[JavaLauncher] Running in LiveContainer, skipping dyld patch");
     } else {
-        if (@available(iOS 26.0, *) || jit26AlwaysAttached) {
+        if (@available(iOS 26.0, *) || !jit26AlwaysAttached) {
             // Disable Library Validtion bypass for iOS 26 because of stricter JIT
         } else {
             // Activate Library Validation bypass for external runtime and dylibs (JNA, etc)
