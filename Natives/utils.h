@@ -35,7 +35,6 @@
 #define GLFW_VISIBLE 0x00020004
 
 #define RENDERER_NAME_GL4ES "libgl4es_114.dylib"
-#define RENDERER_NAME_NGGL4ES "libng_gl4es.dylib"
 #define RENDERER_NAME_MTL_ANGLE "libtinygl4angle.dylib"
 #define RENDERER_NAME_MOBILEGLUES "libmobileglues.dylib"
 #define RENDERER_NAME_VK_ZINK "libOSMesa.8.dylib"
