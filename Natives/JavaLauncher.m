@@ -107,7 +107,7 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
             munmap(result, getpagesize());
             // we can't continue since legacy script only allows calling breakpoint once
             [NSFileManager.defaultManager copyItemAtPath:[NSBundle.mainBundle pathForResource:@"UniversalJIT26" ofType:@"js"] toPath:[NSString stringWithFormat:@"%s/UnjversalJIT26.js", getenv("POJAV_HOME")] error:nil];
-            showDiaLog(localize(@"Error", nil), @"Support for legacy script has been removed. Please switch to Universal JIT script. It can be found under Pojav's Documents directory.");
+            showDialog(localize(@"Error", nil), @"Support for legacy script has been removed. Please switch to Universal JIT script. It can be found under Pojav's Documents directory.");
             [PLLogOutputView handleExitCode:1];
             return 1;
         }
