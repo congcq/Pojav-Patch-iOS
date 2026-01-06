@@ -262,7 +262,7 @@ typedef void(^XSTSCallback)(NSString *xsts, NSString *uhs);
     OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)dict, &resultData);
     if (status == errSecSuccess) {
         NSError *error;
-        NSDictionary *result [NSKeyedUnarchiver unarchivedObjectOfClass:@[NSDictionary.class, NSString.class] fromData:(__bridge NSData *)resultData error:nil];
+        NSDictionary *result = [NSKeyedUnarchiver unarchivedObjectOfClass:@[NSDictionary.class, NSString.class] fromData:(__bridge NSData *)resultData error:nil];
         if (error) {
             NSDebugLog(@"[MicrosoftAuthenicator] Failed to unarchive token data: %@", error);
         }
