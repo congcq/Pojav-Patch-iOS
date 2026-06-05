@@ -57,10 +57,13 @@ int pojavInitOpenGL() {
         setenv("POJAV_RENDERER", renderer.UTF8String, 1);
         set_gl_bridge_tbl();
     } else if ([renderer isEqualToString:@ RENDERER_NAME_MTL_ANGLE]) {
-        renderer = @RENDERER_NAME_MTL_ANGLE;
+        renderer = @ RENDERER_NAME_MTL_ANGLE;
         set_gl_bridge_tbl();
     } else if ([renderer isEqualToString:@ RENDERER_NAME_MOBILEGLUES]) {
         set_gl_bridge_tbl();
+    } else if ([renderer isEqualToString:@ RENDERER_NAME_MTL_MGL]) {
+        renderer = @ RENDERER_NAME_MTL_MGL;
+        set_mgl_bridge_tbl();
     } else if ([renderer hasPrefix:@"libOSMesa"]) {
         setenv("GALLIUM_DRIVER","zink",1);
         set_osm_bridge_tbl();
