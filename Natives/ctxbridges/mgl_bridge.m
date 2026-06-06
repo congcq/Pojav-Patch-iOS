@@ -10,7 +10,7 @@
 static mgl_library handle;
 
 void dlsym_MGL() {
-    void* dl_handle = dlopen("@rpath/libmgl.dylib", RTLD_GLOBAL);
+    void* dl_handle = dlopen("@rpath/libmgl_core.dylib", RTLD_GLOBAL);
     assert(dl_handle);
     handle.createGLMContext = dlsym(dl_handle, "createGLMContext");
     handle.MGLgetCurrentContext = dlsym(dl_handle, "MGLgetCurrentContext");
