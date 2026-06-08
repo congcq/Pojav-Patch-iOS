@@ -33,7 +33,7 @@ static mgl_render_window_t* mgl_init_context(mgl_render_window_t* share) {
     }
 
     bundle->context = handle.createGLMContext(
-        GL_RGBA,
+        GL_BGRA,
         GL_UNSIGNED_INT_8_8_8_8_REV,
         GL_DEPTH_COMPONENT,
         GL_FLOAT,
@@ -68,7 +68,7 @@ static void mgl_make_current(mgl_render_window_t* bundle) {
         renderer = [[MGLRenderer_class alloc] init];
     }
 
-    //[renderer createMGLRendererAndBindToContext:bundle->context view:SurfaceViewController.surface];
+    [renderer createMGLRendererAndBindToContext:bundle->context view:SurfaceViewController.surface];
 }
 
 void mgl_swap_buffers() {
