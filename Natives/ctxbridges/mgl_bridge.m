@@ -26,12 +26,6 @@ static bool mgl_init() {
 static mgl_render_window_t* mgl_init_context(mgl_render_window_t* share) {
     mgl_render_window_t* bundle = calloc(1, sizeof(mgl_render_window_t));
 
-    Class MGLRenderer_class = NSClassFromString(@"MGLRenderer");
-    static MGLRenderer *renderer;
-    if (!renderer) {
-        renderer = [[MGLRenderer_class alloc] init];
-    }
-
     bundle->context = handle.createGLMContext(
         GL_BGRA,
         GL_UNSIGNED_INT_8_8_8_8_REV,
@@ -46,27 +40,25 @@ static mgl_render_window_t* mgl_init_context(mgl_render_window_t* share) {
         return NULL;
     }
 
-    handle.MGLsetCurrentContext(bundle->context);
-    [renderer createMGLRendererAndBindToContext:bundle->context view:SurfaceViewController.surface];
-
     return bundle;
 }
 
 static void mgl_make_current(mgl_render_window_t* bundle) {
-    if (!bundle) {
-        currentBundle = NULL;
-        handle.MGLsetCurrentContext(NULL);
-        return;
-    }
-
-    currentBundle = (basic_render_window_t*)bundle;
-    handle.MGLsetCurrentContext(bundle->context);
     Class MGLRenderer_class = NSClassFromString(@"MGLRenderer");
     static MGLRenderer *renderer;
 
     if (!renderer) {
         renderer = [[MGLRenderer_class alloc] init];
     }
+
+    if (!bundle) {
+        currentBundle = NULL;
+        handle.MGLsetCurrentContext(NULL);
+        return;
+    }
+
+    handle.MGLsetCurrentContext(bundle->context);
+    currentBundle = (basic_render_window_t*)bundle;
 
     [renderer createMGLRendererAndBindToContext:bundle->context view:SurfaceViewController.surface];
 }
