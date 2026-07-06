@@ -37,6 +37,7 @@
 #define RENDERER_NAME_GL4ES "libgl4es_114.dylib"
 #define RENDERER_NAME_LTW "libLTW.dylib"
 #define RENDERER_NAME_MTL_ANGLE "libtinygl4angle.dylib"
+#define RENDERER_NAME_MOBILEGL "libMobileGL.dylib"
 #define RENDERER_NAME_MOBILEGLUES "libmobileglues.dylib"
 #define RENDERER_NAME_VK_ZINK "libOSMesa.8.dylib"
 

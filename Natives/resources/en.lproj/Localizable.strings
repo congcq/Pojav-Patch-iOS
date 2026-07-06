@@ -254,6 +254,7 @@
 "preference.title.renderer.debug.auto"="Auto: holy gl4es or MobileGlues";
 "preference.title.renderer.debug.gl4es"="holy gl4es - exports OpenGL 2.1";
 "preference.title.renderer.debug.ltw"="LTW (EXP) - exports OpenGL 3.3";
+"preference.title.renderer.debug.mobilegl"="MobileGL (1.17+, Core Profile, GLES Backend) - exports OpenGL 3.3";
 "preference.title.renderer.debug.mobileglues"="MobileGlues (1.17+, Core Profile) - Export OpenGL 4.0";
 "preference.title.renderer.debug.zink"="Zink (Mesa 21.0) - exports OpenGL 4.1";
 "preference.title.renderer.release.angle"="ANGLE";
