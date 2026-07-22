@@ -100,8 +100,8 @@ void init_loadCustomJvmFlags(int* argc, const char** argv) {
 int launchJVM(NSString *username, id launchTarget, int width, int height, int minVersion) {
     NSLog(@"[JavaLauncher] Beginning JVM launch");
 
-    BOOL jit26UniversalScript = getPrefbool(@"debug.debug_universal_script_jit");
-    BOOL jit26AlwaysAttached = getPrefbool(@"debug.debug_always_attached_jit");
+    BOOL jit26UniversalScript = getPrefBool(@"debug.debug_universal_script_jit");
+    BOOL jit26AlwaysAttached = getPrefBool(@"debug.debug_always_attached_jit");
     if (jit26UniversalScript) {
         JIT26SendJITScript([NSString stringWithContentsOfFile:[NSBundle.mainBundle pathForResource:@"JIT26Script" ofType:@"js"]]);
         JIT26SetDetachAfterFirstBr(!jit26AlwaysAttached);
