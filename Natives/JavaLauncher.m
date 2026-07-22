@@ -117,7 +117,6 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
     } else {
         // Disable Library Validtion bypass for iOS 26 because of stricter JIT
     }
-    }
 
 
     init_loadDefaultEnv();
