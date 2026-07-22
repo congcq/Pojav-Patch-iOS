@@ -12,6 +12,7 @@
 #include <mach-o/dyld.h>
 #include <mach-o/dyld_images.h>
 #include <sys/syscall.h>
+#include <libkern/OSCacheControl.h>
 
 #include "utils.h"
 
@@ -22,6 +23,9 @@ char patch[] = {0x88,0x00,0x00,0x58,0x00,0x01,0x1f,0xd6,0x1f,0x20,0x03,0xd5,0x1f
 // Signatures to search for
 char mmapSig[] = {0xB0, 0x18, 0x80, 0xD2, 0x01, 0x10, 0x00, 0xD4};
 char fcntlSig[] = {0x90, 0x0B, 0x80, 0xD2, 0x01, 0x10, 0x00, 0xD4};
+char syscallSig[] = {0x01, 0x10, 0x00, 0xD4};
+int (*orig_fcntl)(int fildes, int cmd, void *param) = 0;
+bool (*redirectFunction)(char *name, void *patchAddr, void *target) = NULL;
 
 extern void* __mmap(void *addr, size_t len, int prot, int flags, int fd, off_t offset);
 extern int __fcntl(int fildes, int cmd, void* param);
@@ -41,7 +45,8 @@ ASM(_builtin_vm_protect: \n
     ret
 );
 
-bool redirectFunction(char *name, void *patchAddr, void *target) {
+// redirectFunction for iOS 18 and below
+bool redirectFunctionDirect(char *name, void *patchAddr, void *target) {
     kern_return_t kret = builtin_vm_protect(mach_task_self(), (vm_address_t)patchAddr, sizeof(patch), false, PROT_READ | PROT_WRITE | VM_PROT_COPY);
     if (kret != KERN_SUCCESS) {
         NSDebugLog(@"[DyldLVBypass] vm_protect(RW) fails at line %d", __LINE__);
@@ -50,6 +55,7 @@ bool redirectFunction(char *name, void *patchAddr, void *target) {
     
     builtin_memcpy((char *)patchAddr, patch, sizeof(patch));
     *(void **)((char*)patchAddr + 16) = target;
+    sys_icache_invalidate((void*)patchAddr, sizeof(patch));
     
     kret = builtin_vm_protect(mach_task_self(), (vm_address_t)patchAddr, sizeof(patch), false, PROT_READ | PROT_EXEC);
     if (kret != KERN_SUCCESS) {
@@ -61,11 +67,39 @@ bool redirectFunction(char *name, void *patchAddr, void *target) {
     return TRUE;
 }
 
+// redirectFunction for iOS 26+ with TXM workaround
+// FIXME: test on non-TXM devices
+bool redirectFunctionMirrored(char *name, void *patchAddr, void *target) {
+    if (DeviceRequiresTXMWorkaround()) {
+        JIT26PrepareRegionForPatching(patchAddr, sizeof(patch));
+    }
+    // mirror `addr` (rx, JIT applied) to `mirrored` (rw)
+    vm_address_t mirrored = 0;
+    vm_prot_t cur_prot, max_prot;
+    kern_return_t ret = vm_remap(mach_task_self(), &mirrored, sizeof(patch), 0, VM_FLAGS_ANYWHERE, mach_task_self(), (vm_address_t)patchAddr, false, &cur_prot, &max_prot, VM_INHERIT_SHARE);
+    if (ret != KERN_SUCCESS) {
+        NSDebugLog(@"[DyldLVBypass] vm_remap() fails at line %d", __LINE__);
+        return FALSE;
+    }
+    
+    mirrored += (vm_address_t)patchAddr & PAGE_MASK;
+    vm_protect(mach_task_self(), mirrored, sizeof(patch), NO,
+               VM_PROT_READ | VM_PROT_WRITE);
+    builtin_memcpy((char *)mirrored, patch, sizeof(patch));
+    *(void **)((char*)mirrored + 16) = target;
+    sys_icache_invalidate((void*)patchAddr, sizeof(patch));
+    
+    NSDebugLog(@"[DyldLVBypass] hook %s succeed!", name);
+    
+    vm_deallocate(mach_task_self(), mirrored, sizeof(patch));
+    return TRUE;
+}
+
 bool searchAndPatch(char *name, char *base, char *signature, int length, void *target) {
     char *patchAddr = NULL;
     kern_return_t kret;
     
-    for(int i=0; i < 0x100000; i++) {
+    for(int i=0; i < 0x80000; i+=4) {
         if (base[i] == signature[0] && memcmp(base+i, signature, length) == 0) {
             patchAddr = base + i;
             break;
@@ -73,7 +107,7 @@ bool searchAndPatch(char *name, char *base, char *signature, int length, void *t
     }
     
     if (patchAddr == NULL) {
-        NSDebugLog(@"[DyldLVBypass] hook fails line %d", __LINE__);
+        NSDebugLog(@"[DyldLVBypass] hook %s fails line %d", name, __LINE__);
         return FALSE;
     }
     
@@ -113,48 +147,49 @@ void* hooked_mmap(void *addr, size_t len, int prot, int flags, int fd, off_t off
 
     void *map = __mmap(addr, len, prot, flags, fd, offset);
     if (map == MAP_FAILED && fd && (prot & PROT_EXEC)) {
-        map = __mmap(addr, len, PROT_READ | PROT_WRITE, flags | MAP_PRIVATE | MAP_ANON, 0, 0);
+        map = __mmap(addr, len, prot, flags | MAP_PRIVATE | MAP_ANON, 0, 0);
+        if (DeviceRequiresTXMWorkaround()) {
+            JIT26PrepareRegion(map, len);
+        }
+
         void *memoryLoadedFile = __mmap(NULL, len, PROT_READ, MAP_PRIVATE, fd, offset);
-        memcpy(map, memoryLoadedFile, len);
+        // mirror `addr` (rx, JIT applied) to `mirrored` (rw)
+        vm_address_t mirrored = 0;
+        vm_prot_t cur_prot, max_prot;
+        kern_return_t ret = vm_remap(mach_task_self(), &mirrored, len, 0, VM_FLAGS_ANYWHERE, mach_task_self(), (vm_address_t)map, false, &cur_prot, &max_prot, VM_INHERIT_SHARE);
+        if(ret == KERN_SUCCESS) {
+            vm_protect(mach_task_self(), mirrored, len, NO,
+                       VM_PROT_READ | VM_PROT_WRITE);
+            memcpy((void*)mirrored, memoryLoadedFile, len);
+            vm_deallocate(mach_task_self(), mirrored, len);
+        }
         munmap(memoryLoadedFile, len);
-        mprotect(map, len, prot);
     }
     return map;
 }
 
 int hooked___fcntl(int fildes, int cmd, void *param) {
     if (cmd == F_ADDFILESIGS_RETURN) {
-        const char *homeDir = getenv("CFFIXED_USER_HOME");
-        char filePath[PATH_MAX];
-        bzero(filePath, sizeof(filePath));
-        
-        // Check if the file is our "in-memory" file
-        if (__fcntl(fildes, F_GETPATH, filePath) != -1) {
-            if (!strncmp(filePath, homeDir, strlen(homeDir))) {
-                fsignatures_t *fsig = (fsignatures_t*)param;
-                // called to check that cert covers file.. so we'll make it cover everything ;)
-                fsig->fs_file_start = 0xFFFFFFFF;
-                return 0;
-            }
-        }
+#if !(TARGET_OS_MACCATALYST || TARGET_OS_SIMULATOR)
+        // attempt to attach code signature on iOS only as the binaries may have been signed
+        // on macOS, attaching on unsigned binaries without CS_DEBUGGED will crash
+        orig_fcntl(fildes, cmd, param);
+#endif
+        fsignatures_t *fsig = (fsignatures_t*)param;
+        // called to check that cert covers file.. so we'll make it cover everything ;)
+        fsig->fs_file_start = 0xFFFFFFFF;
+        return 0;
     }
     
     // Signature sanity check by dyld
     else if (cmd == F_CHECK_LV) {
+        orig_fcntl(fildes, cmd, param);
         // Just say everything is fine
         return 0;
     }
     
     // If for another command or file, we pass through
-    return __fcntl(fildes, cmd, param);
-}
-
-int hooked_fcntl(int fildes, int cmd, ...) {
-    va_list ap;
-    va_start(ap, cmd);
-    void *param = va_arg(ap, void *);
-    va_end(ap);
-    return hooked___fcntl(fildes, cmd, param);
+    return orig_fcntl(fildes, cmd, param);
 }
 
 void init_bypassDyldLibValidation() {
@@ -163,14 +198,47 @@ void init_bypassDyldLibValidation() {
     bypassed = YES;
 
     NSDebugLog(@"[DyldLVBypass] init");
+
+    if (@available(iOS 26.0, *)) {
+        redirectFunction = redirectFunctionMirrored;
+    } else {
+        redirectFunction = redirectFunctionDirect;
+    }
     
     // Modifying exec page during execution may cause SIGBUS, so ignore it now
     // Before calling JLI_Launch, this will be set back to SIG_DFL
     signal(SIGBUS, SIG_IGN);
     
     char *dyldBase = getDyldBase();
-    redirectFunction("mmap", mmap, hooked_mmap);
-    redirectFunction("fcntl", fcntl, hooked_fcntl);
+    // redirectFunction("mmap", mmap, hooked_mmap);
+    // redirectFunction("fcntl", fcntl, hooked_fcntl);
     searchAndPatch("dyld_mmap", dyldBase, mmapSig, sizeof(mmapSig), hooked_mmap);
-    searchAndPatch("dyld_fcntl", dyldBase, fcntlSig, sizeof(fcntlSig), hooked___fcntl);
+    bool fcntlPatchSuccess = searchAndPatch("dyld_fcntl", dyldBase, fcntlSig, sizeof(fcntlSig), hooked___fcntl);
+    
+    // https://github.com/LiveContainer/LiveContainer/commit/c978e62
+    // dopamine already hooked it, try to find its hook instead
+    if(!fcntlPatchSuccess) {
+        char* fcntlAddr = 0;
+        // search all syscalls and see if the the instruction before it is a branch instruction
+        for(int i=0; i < 0x80000; i+=4) {
+            if (dyldBase[i] == syscallSig[0] && memcmp(dyldBase+i, syscallSig, 4) == 0) {
+                char* syscallAddr = dyldBase + i;
+                uint32_t* prev = (uint32_t*)(syscallAddr - 4);
+                if(*prev >> 26 == 0x5) {
+                    fcntlAddr = (char*)prev;
+                    break;
+                }
+            }
+        }
+        
+        if(fcntlAddr) {
+            uint32_t* inst = (uint32_t*)fcntlAddr;
+            int32_t offset = ((int32_t)((*inst)<<6))>>4;
+            NSLog(@"[DyldLVBypass] Dopamine hook offset = %x", offset);
+            orig_fcntl = (void*)((char*)fcntlAddr + offset);
+            redirectFunction("dyld_fcntl (Dopamine)", fcntlAddr, hooked___fcntl);
+        } else {
+            NSLog(@"[DyldLVBypass] Dopamine hook not found");
+        }
+    }
 }

@@ -100,15 +100,23 @@ void init_loadCustomJvmFlags(int* argc, const char** argv) {
 int launchJVM(NSString *username, id launchTarget, int width, int height, int minVersion) {
     NSLog(@"[JavaLauncher] Beginning JVM launch");
 
-    if ([NSFileManager.defaultManager fileExistsAtPath:[NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:@"LSAppInfo.plist"]]) {
+    BOOL jit26UniversalScript = getPrebool(@"debug.debug_universal_script_jit");
+    BOOL jit26AlwaysAttached = getPrebool(@"debug.debug_always_attached_jit");
+    if (jit26UniversalScript) {
+        JIT26SendJITScript([NSString stringWithContentsOfFile:[NSBundle.mainBundle pathForResource:@"JIT26Script" ofType:@"js"]]);
+        JIT26SetDetachAfterFirstBr(!jit26AlwaysAttached);
+        // make sure we don't get stuck in EXC_BAD_ACCESS
+        task_set_exception_ports(mach_task_self(), EXC_MASK_BAD_ACCESS, 0, EXCEPTION_DEFAULT, MACHINE_THREAD_STATE);
+    }
+
+    if ([NSFileManager.defaultManager fileExistsAtPath:[NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:@"LSAppInfo.plist"]] && !@available(iOS 26.0, *)) {
         NSDebugLog(@"[JavaLauncher] Running in LiveContainer, skipping dyld patch");
+    } else if (!DeviceRequiresTXMWorkaround() || jit26AlwaysAttached) {
+        // Activate Library Validation bypass for external runtime and dylibs (JNA, etc)
+        init_bypassDyldLibValidation();
     } else {
-        if (@available(iOS 26.0, *)) {
-            // Disable Library Validtion bypass for iOS 26 because of stricter JIT
-        } else {
-            // Activate Library Validation bypass for external runtime and dylibs (JNA, etc)
-            init_bypassDyldLibValidation();
-        }
+        // Disable Library Validtion bypass for iOS 26 because of stricter JIT
+    }
     }
 
 

@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <dirent.h>
 
 #include "utils.h"
 
@@ -148,4 +149,50 @@ void setButtonPointerInteraction(UIButton *button) {
         UITargetedPreview *preview = [[UITargetedPreview alloc] initWithView:button];
         return [NSClassFromString(@"UIPointerStyle") styleWithEffect:[NSClassFromString(@"UIPointerHighlightEffect") effectWithPreview:preview] shape:proposedShape];
     };
+}
+
+__attribute__((noinline,optnone,naked))
+void* JIT26PrepareRegion(void *addr, size_t len) {
+    asm("mov x16, #1 \n"
+        "brk #0xf00d \n"
+        "ret");
+}
+__attribute__((noinline,optnone,naked))
+void BreakSendJITScript(char* script, size_t len) {
+   asm("mov x16, #2 \n"
+       "brk #0xf00d \n"
+       "ret");
+}
+__attribute__((noinline,optnone,naked))
+void JIT26SetDetachAfterFirstBr(BOOL value) {
+   asm("mov x16, #3 \n"
+       "brk #0xf00d \n"
+       "ret");
+}
+__attribute__((noinline,optnone,naked))
+void JIT26PrepareRegionForPatching(void *addr, size_t size) {
+   asm("mov x16, #4 \n"
+       "brk #0xf00d \n"
+       "ret");
+}
+void JIT26SendJITScript(NSString* script) {
+    NSCAssert(script, @"Script must not be nil");
+    BreakSendJITScript((char*)script.UTF8String, script.length);
+}
+BOOL DeviceRequiresTXMWorkaround(void) {
+    if (@available(iOS 26.0, *)) {
+        DIR *d = opendir("/private/preboot");
+        if(!d) return NO;
+        struct dirent *dir;
+        char txmPath[PATH_MAX];
+        while ((dir = readdir(d)) != NULL) {
+            if(strlen(dir->d_name) == 96) {
+                snprintf(txmPath, sizeof(txmPath), "/private/preboot/%s/usr/standalone/firmware/FUD/Ap,TrustedExecutionMonitor.img4", dir->d_name);
+                break;
+            }
+        }
+        closedir(d);
+        return access(txmPath, F_OK) == 0;
+    }
+    return NO;
 }

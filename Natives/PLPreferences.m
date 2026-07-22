@@ -83,6 +83,8 @@
 
         defaults[@"java"][@"manage_runtime"] = @""; // stub
         defaults[@"debug"] = @{
+            @"debug_universal_script_jit": @NO,
+            @"debug_always_attached_jit": @NO,
             @"debug_skip_wait_jit": @NO,
             @"debug_hide_home_indicator": @NO,
             @"debug_ipad_ui": @(realUIIdiom == UIUserInterfaceIdiomPad),

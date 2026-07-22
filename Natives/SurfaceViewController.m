@@ -210,9 +210,7 @@ static GameSurfaceView* pojavWindow;
         GCMouse* mouse = note.object;
         [self registerMouseCallbacks:mouse];
         self.mousePointerView.hidden = isGrabbing || !virtualMouseEnabled;
-        if (getPrefBool(@"control.hardware_hide")) {
-            self.ctrlView.hidden = YES;
-        }
+        [self setNeedsUpdateOfPrefersPointerLocked];
     }];
     self.mouseDisconnectCallback = [[NSNotificationCenter defaultCenter] addObserverForName:GCMouseDidDisconnectNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
         NSLog(@"Input: Mouse disconnected!");
@@ -690,6 +688,10 @@ static GameSurfaceView* pojavWindow;
         // Workaround MC-121772 (macOS/iOS feature)
         CallbackBridge_nativeSendScroll(-value, -value);
     };
+
+    if (getPrefBool(@"control.hardware_hide")) {
+        self.ctrlView.hidden = YES;
+    }
 }
 
 - (void)surfaceOnClick:(UITapGestureRecognizer *)sender {

@@ -106,7 +106,8 @@ static void *ProgressObserverContext = &ProgressObserverContext;
     if ([BaseAuthenticator.current isKindOfClass:MicrosoftAuthenticator.class]) {
         // Perform token refreshment on startup
         [self setInteractionEnabled:NO forDownloading:NO];
-        id callback = ^(NSString* status, BOOL success) {
+        id callback = ^(id status, BOOL success) {
+            status = [status description];
             self.progressText.text = status;
             if (status == nil) {
                 [self setInteractionEnabled:YES forDownloading:NO];
