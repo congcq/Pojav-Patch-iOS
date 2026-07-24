@@ -85,7 +85,8 @@ bool init_checkForJailbreak() {
 
     // Check if posix_spawn is hooked
     for (int i=0; i < _dyld_image_count(); i++) {
-        if (strcmp(_dyld_get_image_name(i),"/usr/lib/pspawn_payload-stg2.dylib") == 0) {
+        if (strcmp(_dyld_get_image_name(i),"/usr/lib/pspawn_payload-stg2.dylib") == 0 ||
+            strstr(_dyld_get_image_name(i),"/systemhook.dylib") != NULL) {
             return true;
         }
     }

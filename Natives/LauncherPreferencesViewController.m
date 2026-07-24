@@ -217,7 +217,8 @@
             @{@"key": @"allow_microphone",
               @"hasDetail": @YES,
               @"icon": @"mic",
-              @"type": self.typeSwitch
+              @"type": self.typeSwitch,
+              @"requestReload": @YES
             },
             @{@"key": @"fix_simple_voice_chat_mod",
               @"hasDetail": @YES,
@@ -390,20 +391,12 @@
         ], @[
             // Debug settings - only recommended for developer use
             @{@"icon": @"ladybug"},
-            @{@"key": @"debug_universal_script_jit",
-                @"icon": @"scroll",
-                @"type": self.typeSwitch,
-                @"requestReload": @YES,
-                @"enableCondition": ^BOOL(){
-                    return DeviceRequiresTXMWorkaround() && whenNotInGame();
-                },
-            },
             @{@"key": @"debug_always_attached_jit",
                 @"hasDetail": @YES,
                 @"icon": @"app.connected.to.app.below.fill",
                 @"type": self.typeSwitch,
                 @"enableCondition": ^BOOL(){
-                    return getPrefBool(@"debug.debug_universal_script_jit") && whenNotInGame();
+                    return DeviceHasJITFlags(JIT_FLAG_FORCE_MIRRORED | JIT_FLAG_HAS_TXM) && whenNotInGame();
                 },
             },
             @{@"key": @"debug_skip_wait_jit",

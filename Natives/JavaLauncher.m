@@ -16,6 +16,7 @@
 #import "JavaLauncher.h"
 #import "LauncherPreferences.h"
 #import "PLProfiles.h"
+#import "PLLogOutputView.h"
 
 #define fm NSFileManager.defaultManager
 
@@ -100,27 +101,51 @@ void init_loadCustomJvmFlags(int* argc, const char** argv) {
 int launchJVM(NSString *username, id launchTarget, int width, int height, int minVersion) {
     NSLog(@"[JavaLauncher] Beginning JVM launch");
 
-    BOOL jit26UniversalScript = getPrefBool(@"debug.debug_universal_script_jit");
+    init_loadDefaultEnv();
+    init_loadCustomEnv();
+
+    DeviceGetJITFlags(YES); // refresh JIT flags right after loading env
+    BOOL requiresTXMWorkaround = DeviceHasJITFlags(JIT_FLAG_FORCE_MIRRORED | JIT_FLAG_HAS_TXM);
     BOOL jit26AlwaysAttached = getPrefBool(@"debug.debug_always_attached_jit");
-    if (jit26UniversalScript) {
-        JIT26SendJITScript([NSString stringWithContentsOfFile:[NSBundle.mainBundle pathForResource:@"JIT26Script" ofType:@"js"]]);
+    if (requiresTXMWorkaround) {
+        void *result = JIT26CreateRegionLegacy(getpagesize());
+        if ((uint32_t)result != 0x690000E0) {
+            munmap(result, getpagesize());
+            // we can't continue since legacy script only allows calling breakpoint once
+            NSString *inBundleScriptPath = [NSBundle.mainBundle pathForResource:@"UniversalJIT26" ofType:@"js"];
+            NSString *lcAppInfoPath = [NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:@"LCAppInfo.plist"];
+            NSMutableDictionary *lcAppInfo = [NSMutableDictionary dictionaryWithContentsOfFile:lcAppInfoPath];
+            if(lcAppInfo) {
+                // if this is inside LiveContainer, we assign script ourselves and prompt user to restart Amethyst
+                lcAppInfo[@"jitLaunchScriptJs"] = [[NSData dataWithContentsOfFile:inBundleScriptPath] base64EncodedStringWithOptions:0];
+                if([lcAppInfo writeToFile:lcAppInfoPath atomically:YES]) {
+                    showDialog(localize(@"Error", nil), @"Amethyst was launched with a legacy script. We have updated the script to Universal, please restart LiveContainer to continue.");
+                    [PLLogOutputView handleExitCode:1];
+                    return 1;
+                }
+            }
+            [NSFileManager.defaultManager copyItemAtPath:inBundleScriptPath toPath:[NSString stringWithFormat:@"%s/UniversalJIT26.js", getenv("POJAV_HOME")] error:nil];
+            showDialog(localize(@"Error", nil), @"Support for legacy script has been removed. Please switch to Universal JIT script. To import it, long-press on Amethyst when enabling JIT in StikDebug and tap \"Assign Script\", then go to Hynis's Documents directory and pick it.");
+            [PLLogOutputView handleExitCode:1];
+            return 1;
+        }
+        JIT26SendJITScript([NSString stringWithContentsOfFile:[NSBundle.mainBundle pathForResource:@"UniversalJIT26Extension" ofType:@"js"]]);
         JIT26SetDetachAfterFirstBr(!jit26AlwaysAttached);
         // make sure we don't get stuck in EXC_BAD_ACCESS
         task_set_exception_ports(mach_task_self(), EXC_MASK_BAD_ACCESS, 0, EXCEPTION_DEFAULT, MACHINE_THREAD_STATE);
     }
 
-    if ([NSFileManager.defaultManager fileExistsAtPath:[NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:@"LSAppInfo.plist"]] && !@available(iOS 26.0, *)) {
-        NSDebugLog(@"[JavaLauncher] Running in LiveContainer, skipping dyld patch");
-    } else if (!DeviceRequiresTXMWorkaround() || jit26AlwaysAttached) {
+    if (!requiresTXMWorkaround || jit26AlwaysAttached) {
+        if (jit26AlwaysAttached) {
+            // Only allow StikDebug to catch our breakpoints to prevent any stutters
+            task_set_exception_ports(mach_task_self(), EXC_MASK_ALL & ~EXC_MASK_BREAKPOINT, 0,
+                EXCEPTION_DEFAULT, THREAD_STATE_NONE);
+        }
         // Activate Library Validation bypass for external runtime and dylibs (JNA, etc)
         init_bypassDyldLibValidation();
     } else {
-        // Disable Library Validtion bypass for iOS 26 because of stricter JIT
+        NSLog(@"[DyldLVBypass] Hook disabled! Loading unsigned dylib will cause code signature error.");
     }
-
-
-    init_loadDefaultEnv();
-    init_loadCustomEnv();
 
     BOOL launchJar = NO;
     NSString *gameDir;
@@ -193,7 +218,11 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
     NSLog(@"[JavaLauncher] Max RAM allocation is set to %d MB", allocmem);
     if (!validateVirtualMemorySpace(allocmem)) {
         UIKit_returnToSplitView();
-        showDialog(localize(@"Error", nil), @"Insufficient contiguous virtual memory space. Lower memory allocation and try again.");
+        if (getEntitlementValue(@"com.apple.developer.kernel.increased-memory-limit")) {
+            showDialog(localize(@"Error", nil), @"Insufficient contiguous virtual memory space. Lower memory allocation and try again.");
+        } else {
+            showDialog(localize(@"Error", nil), @"Insufficient contiguous virtual memory space. Increased Memory Limit entitlement is missing, please add it via GetMoreRam app.");
+        }
         return 1;
     }
 

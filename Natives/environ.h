@@ -77,5 +77,6 @@ jmethodID method_SystemClipboardDataReceived;
 
 float resolutionScale;
 BOOL virtualMouseEnabled, isControlModifiable;
+uint64_t hwRedirectOrig[6], hwRedirectTarget[6];
 
 #endif //POJAVLAUNCHER_ENVIRON_H

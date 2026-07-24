@@ -150,9 +150,8 @@
 "preference.detail.debug_hide_home_indicator"="This will disable home indicator locking. You will need to use Guided Access to hide and lock home indicator at the same time.";
 "preference.detail.debug_ipad_ui"="Unlock iPad-exclusive UI (alert, keyboard, etc.) if enabled or iPhone UI if disabled.";
 "preference.detail.debug_logging"="Logs internal settings and actions to latestlog.txt. This helps the developers find issues easier, but Minecraft may run slower as the logs will be written to more often.";
-"preference.title.debug_universal_script_jit" = "Use Universal StikDebug Script";
 "preference.title.debug_always_attached_jit" = "Keep attached to StikDebug";
-"preference.detail.debug_always_attached_jit" = "Enable this if your mods require loading .dylib at runtime. When this is on, StikDebug's PiP should not be closed during gameplay. Requires Universal Script enabled";
+"preference.detail.debug_always_attached_jit" = "Enable this if your mods require loading .dylib at runtime. When this is on, StikDebug's PiP should not be closed during gameplay.";
 "preference.detail.debug_skip_wait_jit"="This does not allow you to launch without JIT, instead this skips debugger check, because check fails on certain jailbreaks.";
 "preference.detail.enable_longPressTwoGesture"="When enable, long press two finger will open keyboard.";
 "preference.detail.env_variables"="Set custom environment variables when launching Minecraft. Be careful, this can make the game crash if modified incorrectly.";

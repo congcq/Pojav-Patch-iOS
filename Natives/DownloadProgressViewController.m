@@ -55,7 +55,7 @@ static void *TotalProgressObserverContext = &TotalProgressObserverContext;
             WFWorkflowProgressView *progressView = (id)cell.accessoryView;
             progressView.fractionCompleted = progress.fractionCompleted;
             if (progress.finished) {
-                [progressView transitionCompletedLayerToVisible:YES animated:YES haptic:NO];
+                [progressView transitionCompletedLayerToVisible:YES animated:NO haptic:NO];
             }
         });
     } else if (context == TotalProgressObserverContext) {

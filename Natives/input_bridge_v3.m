@@ -137,6 +137,19 @@ void CTCDesktopPeer_openGlobal(JNIEnv *env, jclass clazz, jstring path) {
     (*env)->ReleaseStringUTFChars(env, path, stringChars);
 }
 
+void hackFix18LWJGL(void *addr) {
+    addr = (void *)((uintptr_t)addr & ~PAGE_MASK);
+    if(DeviceHasJITFlags(JIT_FLAG_FORCE_MIRRORED)) return;
+    if(!mprotect(addr, PAGE_SIZE, PROT_READ | PROT_EXEC)) return;
+    // FIXME: For some reason the one page in liblwjgl.dylib is mapped as r-x/rwx (COW), and recent builds on iOS 18 switches it to r--/rw- causing codesign failure. Here we hack it to map anon page to get r-x back
+    char tempPage[PAGE_SIZE];
+    memcpy(tempPage, addr, PAGE_SIZE);
+    void *result = mmap(addr, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_ANON, -1, 0);
+    assert(result != MAP_FAILED);
+    memcpy(addr, tempPage, PAGE_SIZE);
+    mprotect(addr, PAGE_SIZE, PROT_READ | PROT_EXEC);
+}
+
 void registerOpenHandler(JNIEnv *env) {
     jclass cls;
 
@@ -249,7 +262,11 @@ void handleFramebufferSizeJava(void* window, int w, int h) {
 }
 
 void pojavPumpEvents(void* window) {
-    CallbackBridge_nativeSetInputReady(YES);
+    static BOOL setInputReady = NO;
+    if(!setInputReady) {
+        setInputReady = YES;
+        CallbackBridge_nativeSetInputReady(YES);
+    }
     //__android_log_print(ANDROID_LOG_INFO, "input_bridge_v3", "pojavPumpevents %d", eventCounter);
     size_t counter = atomic_load_explicit(&eventCounter, memory_order_acquire);
     if((cLastX != cursorX || cLastY != cursorY) && GLFW_invoke_CursorPos) {
@@ -408,10 +425,11 @@ void CallbackBridge_nativeSetInputReady(BOOL inputReady) {
     isInputReady = inputReady;
     if (inputReady) {
         if (GLFW_invoke_FramebufferSize) {
+            hackFix18LWJGL(GLFW_invoke_FramebufferSize);
             GLFW_invoke_FramebufferSize((void*) showingWindow, windowWidth, windowHeight);
         }
         if (GLFW_invoke_WindowSize) {
-            GLFW_invoke_WindowSize((void*) showingWindow, windowWidth, windowHeight);
+            GLFW_invoke_FramebufferSize((void*) showingWindow, windowWidth, windowHeight);
         }
     }
 }

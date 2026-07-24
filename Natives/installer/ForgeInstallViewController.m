@@ -835,9 +835,17 @@
                       [NSString stringWithFormat:@"%@ installer will now run. After installation completes, you will need to restart the app.", self.currentVendor]);
             
             LauncherNavigationController *navVC = (id)((UISplitViewController *)self.presentingViewController).viewControllers[1];
-            [self dismissViewControllerAnimated:YES completion:^{
-                [navVC enterModInstallerWithPath:outPath hitEnterAfterWindowShown:YES];
-            }];
+            if (self.searchController.isActive) {
+                [self.serachController dismissViewControllerAnimated:NO completion:^{
+                    [self dismissViewControllerAnimated:YES completion:^{
+                        [navVC enterModInstallerWithPath:outPath hitEnterAfterWindowShown:YES];
+                    }];
+                }];
+            } else {
+                [self dismissViewControllerAnimated:YES completion:^{
+                    [navVC enterModInstallerWithPath:outPath hitEnterAfterWindowShown:YES];
+                }];
+            }
         });
     }];
     

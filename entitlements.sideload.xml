@@ -18,7 +18,7 @@
     <true/>
 
     <!-- Custom entitlement to indicate this was installed with TrollStore, still sandboxed -->
-    <key>com.apple.private.local.sandboxed-jit</key>
-    <true/>
+    <key>jb.pmap_cs.custom_trust</key>
+    <string>PMAP_CS_APP_STORE</string>
 </dict>
 </plist>
