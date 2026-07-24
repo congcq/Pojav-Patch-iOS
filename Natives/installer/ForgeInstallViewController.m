@@ -836,7 +836,7 @@
             
             LauncherNavigationController *navVC = (id)((UISplitViewController *)self.presentingViewController).viewControllers[1];
             if (self.searchController.isActive) {
-                [self.serachController dismissViewControllerAnimated:NO completion:^{
+                [self.searchController dismissViewControllerAnimated:NO completion:^{
                     [self dismissViewControllerAnimated:YES completion:^{
                         [navVC enterModInstallerWithPath:outPath hitEnterAfterWindowShown:YES];
                     }];
