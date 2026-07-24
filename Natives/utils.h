@@ -88,6 +88,7 @@ BOOL PLPatchMachOPlatformForFile(const char *path);
 
 UIViewController* currentVC();
 void openLink(UIViewController* sender, NSURL* link);
+void handle_fatal_exit(int code);
 
 NSString* localize(NSString* key, NSString* comment);
 NSMutableDictionary* parseJSONFromFile(NSString *path);
