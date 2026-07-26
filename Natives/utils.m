@@ -264,7 +264,7 @@ JITFlags DeviceGetJITFlags(BOOL refresh) {
                 cachedFlags |= JIT_FLAG_FORCE_MIRRORED;
             }
         }
-        if (DeviceHasTXM()) {
+        if (DeviceHasTXMReal()) {
             cachedFlags |= JIT_FLAG_HAS_TXM;
         }
     });
